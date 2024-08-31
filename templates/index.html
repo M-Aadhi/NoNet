@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Local Network Chat and File Sharing</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to the Local Chat and File Sharing App</h1>
+
+    <div>
+        <h2>Chat</h2>
+        <div id="messages" style="border:1px solid #000; height:300px; overflow-y:scroll;"></div>
+        <input id="message_input" type="text" placeholder="Type your message here">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div>
+        <h2>File Sharing</h2>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <button type="submit">Upload</button>
+        </form>
+        <h3>Available Files:</h3>
+        <ul id="file_list">
+            <!-- Files will be listed here -->
+        </ul>
+    </div>
+
+    <script>
+        var socket = io();
+
+        socket.on('connect', function() {
+            console.log('Connected to server');
+        });
+
+        socket.on('message', function(msg) {
+            var messages = document.getElementById('messages');
+            var message = document.createElement('div');
+            message.textContent = msg;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        socket.on('new_file', function(data) {
+            var fileList = document.getElementById('file_list');
+            var fileItem = document.createElement('li');
+            var link = document.createElement('a');
+            link.href = '/download/' + data.filename;
+            link.textContent = data.filename;
+            fileItem.appendChild(link);
+            fileList.appendChild(fileItem);
+        });
+
+        function sendMessage() {
+            var input = document.getElementById('message_input');
+            var msg = input.value;
+            if (msg.trim() !== '') {
+                socket.send(msg);
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
