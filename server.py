@@ -37,4 +37,7 @@ def handle_message(msg):
     send(msg, broadcast=True)
 
 if __name__ == '__main__':
+    print("Running on http://127.0.0.1:5000/")
+    app.debug = True
     socketio.run(app, host='0.0.0.0', port=5000)
+    
